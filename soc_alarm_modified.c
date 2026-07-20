@@ -13,23 +13,6 @@
 #define ID_NAME_EDIT 360
 #define ID_COPY_ALARM 505
 
-typedef struct {
-    char text[TXT];
-} Item;#include <windows.h>
-#include <stdio.h>
-#include <string.h>
-#include <time.h>
-#include <mmsystem.h>
-#pragma comment(lib, "winmm.lib")
-
-#define MAX_ALARMS 50
-#define MAX_ITEMS 10
-#define TXT 128
-#define WM_TRAYICON (WM_APP + 1)
-#define ID_TRAY 1001
-#define ID_NAME_EDIT 360
-#define ID_COPY_ALARM 505
-
 /* ---------- monochrome palette ---------- */
 #define COL_BG        RGB(244,244,245)
 #define COL_TEXT      RGB(32,32,34)
