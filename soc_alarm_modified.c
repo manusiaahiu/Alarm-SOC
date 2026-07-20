@@ -77,15 +77,16 @@ void Beep880(void)
     char exePath[MAX_PATH];
     GetModuleFileName(NULL, exePath, MAX_PATH);
 
-    char *slash = strrchr(exePath, '\');
+    char *slash = strrchr(exePath, '\\');
     if (slash) *slash = 0;
 
     char wavPath[MAX_PATH];
     snprintf(wavPath, sizeof(wavPath),
-             "%s\mixkit-sound-alert-in-hall-1006.wav",
+             "%s\\mixkit-sound-alert-in-hall-1006.wav",
              exePath);
 
-    PlaySound(wavPath, NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+    PlaySound(wavPath, NULL,
+              SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 }
 
 void GetLogPath(char *out, size_t outSize) {
