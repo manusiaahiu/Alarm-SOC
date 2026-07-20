@@ -291,6 +291,17 @@ void ShowDialogItem(int i, const char *text) {
     SetWindowText(g_dItems[i], text);
 }
 
+void ApplyModernFont(HWND hwnd)
+{
+    HWND child = GetWindow(hwnd, GW_CHILD);
+    while (child)
+    {
+        SendMessage(child, WM_SETFONT, (WPARAM)g_hFont, TRUE);
+        child = GetWindow(child, GW_HWNDNEXT);
+    }
+}
+
+
 LRESULT CALLBACK DlgProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_COMMAND:
@@ -442,7 +453,6 @@ void AddTrayIcon(HWND hwnd) {
 LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_CREATE: {
-        ApplyModernFont(hwnd);
         g_hClock = CreateWindow("STATIC", "--:--:--", WS_CHILD | WS_VISIBLE,
             15, 15, 150, 28, hwnd, NULL, NULL, NULL);
         g_hFont = CreateFont(
@@ -454,22 +464,7 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     FALSE,
     FALSE,
     FALSE,
-    DEFAULT_CHARSET,void ShowDialogItem(...)
-    void ApplyModernFont(HWND hwnd)
-{
-    HWND child = GetWindow(hwnd, GW_CHILD);
-
-    while (child)
-    {
-        SendMessage(child,
-                    WM_SETFONT,
-                    (WPARAM)g_hFont,
-                    TRUE);
-
-        child = GetWindow(child,
-                          GW_HWNDNEXT);
-    }
-}
+    DEFAULT_CHARSET,
     OUT_DEFAULT_PRECIS,
     CLIP_DEFAULT_PRECIS,
     CLEARTYPE_QUALITY,
@@ -494,6 +489,7 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
             WS_CHILD | WS_VISIBLE, 15, 325, 430, 18, hwnd, NULL, NULL, NULL);
 
         AddTrayIcon(hwnd);
+        ApplyModernFont(hwnd);
         SetTimer(hwnd, 1, 1000, NULL);
         return 0;
     }
@@ -528,7 +524,6 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     }
     case WM_TRAYICON:
         if (lp == WM_LBUTTONDBLCLK || lp == WM_LBUTTONUP) {
-            ApplyModernFont(hwnd);
             ShowWindow(hwnd, SW_SHOW);
             SetForegroundWindow(hwnd);
         } else if (lp == WM_RBUTTONUP) {
