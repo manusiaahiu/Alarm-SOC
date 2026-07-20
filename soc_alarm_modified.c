@@ -40,6 +40,7 @@ static HWND g_popupName;
 static int g_popupAlarmIdx = -1;
 static int g_popupIsTest = 0;
 static int g_flashOn = 0;
+static int g_soundPlaying = 0;
 
 static HWND g_dTime, g_dLabel, g_dRepeat, g_dItems[MAX_ITEMS], g_dItemDel[MAX_ITEMS];
 static HWND g_dSave, g_dCancel, g_dAddItem;
@@ -68,19 +69,23 @@ int GetSelectedAlarmIndex(void) {
 
 void Beep880(void)
 {
+    if (g_soundPlaying)
+        return;
+
+    g_soundPlaying = 1;
+
     char exePath[MAX_PATH];
     GetModuleFileName(NULL, exePath, MAX_PATH);
 
-    char *slash = strrchr(exePath, '\\');
+    char *slash = strrchr(exePath, '\');
     if (slash) *slash = 0;
 
     char wavPath[MAX_PATH];
     snprintf(wavPath, sizeof(wavPath),
-             "%s\\mixkit-sound-alert-in-hall-1006.wav",
+             "%s\mixkit-sound-alert-in-hall-1006.wav",
              exePath);
 
-    PlaySound(wavPath, NULL,
-              SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
+    PlaySound(wavPath, NULL, SND_FILENAME | SND_ASYNC | SND_NODEFAULT);
 }
 
 void GetLogPath(char *out, size_t outSize) {
@@ -157,6 +162,8 @@ LRESULT CALLBACK PopupProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
                 }
                 KillTimer(hwnd, 1);
                 KillTimer(hwnd, 2);
+                PlaySound(NULL, NULL, 0);
+                g_soundPlaying = 0;
                 DestroyWindow(hwnd);
                 g_hPopup = NULL;
                 RefreshList();
@@ -229,7 +236,7 @@ void TriggerAlarm(int idx, int isTest) {
     SetForegroundWindow(g_hPopup);
     SetFocus(g_popupName);
     EvaluatePopupState(g_hPopup);
-    SetTimer(g_hPopup, 1, 700, NULL);
+    Beep880();
     SetTimer(g_hPopup, 2, 600, NULL);
 }
 
