@@ -166,7 +166,7 @@ void PlayAlarmSound(void) {
     if (slash) *slash = 0;
 
     char wavPath[MAX_PATH];
-    snprintf(wavPath, sizeof(wavPath), "%s\\mixkit-sound-alert-in-hall-1006.wav", exePath);
+    snprintf(wavPath, sizeof(wavPath), "%s\\audio.wav", exePath);
 
     PlaySound(wavPath, NULL, SND_FILENAME | SND_ASYNC | SND_LOOP | SND_NODEFAULT);
 }
