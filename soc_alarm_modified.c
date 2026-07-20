@@ -11,6 +11,7 @@
 #define WM_TRAYICON (WM_APP + 1)
 #define ID_TRAY 1001
 #define ID_NAME_EDIT 360
+#define ID_COPY_ALARM 505
 
 typedef struct {
     char text[TXT];
@@ -31,6 +32,7 @@ static int g_alarmCount = 0;
 static HWND g_hMain, g_hList, g_hClock, g_hTopmostChk;
 static HWND g_hPopup = NULL;
 static int g_editIndex = -1;
+static int g_copyIndex = -1;
 static char g_lastMinute[6] = "";
 static NOTIFYICONDATA g_nid;
 
@@ -65,6 +67,21 @@ int GetSelectedAlarmIndex(void) {
     int sel = SendMessage(g_hList, LB_GETCURSEL, 0, 0);
     if (sel == LB_ERR) return -1;
     return (int)SendMessage(g_hList, LB_GETITEMDATA, sel, 0);
+}
+
+void CopyAlarm(int idx)
+{
+    if (idx < 0 || idx >= g_alarmCount) return;
+    if (g_alarmCount >= MAX_ALARMS) {
+        MessageBox(g_hMain,"Jumlah alarm sudah maksimum.","Copy Alarm",MB_OK|MB_ICONERROR);
+        return;
+    }
+    g_alarms[g_alarmCount]=g_alarms[idx];
+    g_alarms[g_alarmCount].used=1;
+    g_alarms[g_alarmCount].doneToday=0;
+    g_alarmCount++;
+    RefreshList();
+    MessageBox(g_hMain,"Alarm berhasil disalin.","Copy Alarm",MB_OK|MB_ICONINFORMATION);
 }
 
 void Beep880(void)
@@ -438,8 +455,9 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 
         CreateWindow("BUTTON", "Tambah alarm", WS_CHILD | WS_VISIBLE, 15, 285, 105, 30, hwnd, (HMENU)501, NULL, NULL);
         CreateWindow("BUTTON", "Edit alarm", WS_CHILD | WS_VISIBLE, 125, 285, 105, 30, hwnd, (HMENU)502, NULL, NULL);
-        CreateWindow("BUTTON", "Hapus alarm", WS_CHILD | WS_VISIBLE, 235, 285, 105, 30, hwnd, (HMENU)503, NULL, NULL);
-        CreateWindow("BUTTON", "Test alarm", WS_CHILD | WS_VISIBLE, 345, 285, 100, 30, hwnd, (HMENU)504, NULL, NULL);
+        CreateWindow("BUTTON", "Copy alarm", WS_CHILD | WS_VISIBLE, 235, 285, 100, 30, hwnd, (HMENU)ID_COPY_ALARM, NULL, NULL);
+        CreateWindow("BUTTON", "Hapus alarm", WS_CHILD | WS_VISIBLE, 340, 285, 100, 30, hwnd, (HMENU)503, NULL, NULL);
+        CreateWindow("BUTTON", "Test alarm", WS_CHILD | WS_VISIBLE, 445, 285, 100, 30, hwnd, (HMENU)504, NULL, NULL);
 
         CreateWindow("STATIC", "Tutup jendela (X) = minimize ke tray. Klik kanan icon tray untuk keluar.",
             WS_CHILD | WS_VISIBLE, 15, 325, 430, 18, hwnd, NULL, NULL, NULL);
@@ -503,6 +521,12 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
                 int idx = GetSelectedAlarmIndex();
                 if (idx < 0) MessageBox(hwnd, "Pilih dulu alarm yang mau diedit.", "Pilih alarm", MB_OK);
                 else OpenAlarmDialog(idx);
+            } else if (id == ID_COPY_ALARM) {
+                int idx = GetSelectedAlarmIndex();
+                if (idx < 0)
+                    MessageBox(hwnd,"Pilih alarm yang akan disalin.","Copy Alarm",MB_OK);
+                else
+                    CopyAlarm(idx);
             } else if (id == 503) {
                 int idx = GetSelectedAlarmIndex();
                 if (idx < 0) MessageBox(hwnd, "Pilih dulu alarm yang mau dihapus.", "Pilih alarm", MB_OK);
@@ -551,7 +575,7 @@ int WINAPI WinMain(HINSTANCE hInst, HINSTANCE hPrev, LPSTR cmd, int show) {
 
     g_hMain = CreateWindowEx(WS_EX_TOPMOST, "SocAlarmMain", "SOC Checklist Alarm",
         WS_OVERLAPPEDWINDOW & ~WS_MAXIMIZEBOX & ~WS_THICKFRAME,
-        CW_USEDEFAULT, CW_USEDEFAULT, 480, 400, NULL, NULL, hInst, NULL);
+        CW_USEDEFAULT, CW_USEDEFAULT, 590, 400, NULL, NULL, hInst, NULL);
     ShowWindow(g_hMain, show);
     UpdateWindow(g_hMain);
 
