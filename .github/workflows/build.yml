@@ -14,16 +14,9 @@ jobs:
       - uses: ilammy/msvc-dev-cmd@v1
 
       - name: Compile
+        shell: cmd
         run: |
-          cl soc_alarm_modified.c ^
-            /link ^
-            user32.lib ^
-            gdi32.lib ^
-            shell32.lib ^
-            comctl32.lib ^
-            winmm.lib ^
-            /SUBSYSTEM:WINDOWS ^
-            /OUT:SOC_Checklist_Alarm.exe
+          cl /nologo soc_alarm_modified.c /link user32.lib gdi32.lib shell32.lib comctl32.lib winmm.lib /SUBSYSTEM:WINDOWS /OUT:SOC_Checklist_Alarm.exe
 
       - name: Upload EXE
         uses: actions/upload-artifact@v4
