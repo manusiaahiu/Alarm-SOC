@@ -46,6 +46,7 @@ static int g_soundPlaying = 0;
 
 static HWND g_dTime, g_dLabel, g_dRepeat, g_dItems[MAX_ITEMS], g_dItemDel[MAX_ITEMS];
 static HWND g_dSave, g_dCancel, g_dAddItem;
+static HFONT g_hFont = NULL;
 static int g_dItemVisible = 0;
 
 void RefreshList(void) {
@@ -441,10 +442,40 @@ void AddTrayIcon(HWND hwnd) {
 LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     switch (msg) {
     case WM_CREATE: {
+        ApplyModernFont(hwnd);
         g_hClock = CreateWindow("STATIC", "--:--:--", WS_CHILD | WS_VISIBLE,
             15, 15, 150, 28, hwnd, NULL, NULL, NULL);
-        HFONT f = CreateFont(24, 0, 0, 0, FW_BOLD, 0, 0, 0, 0, 0, 0, 0, 0, "Consolas");
-        SendMessage(g_hClock, WM_SETFONT, (WPARAM)f, TRUE);
+        g_hFont = CreateFont(
+    -18,
+    0,
+    0,
+    0,
+    FW_NORMAL,
+    FALSE,
+    FALSE,
+    FALSE,
+    DEFAULT_CHARSET,void ShowDialogItem(...)
+    void ApplyModernFont(HWND hwnd)
+{
+    HWND child = GetWindow(hwnd, GW_CHILD);
+
+    while (child)
+    {
+        SendMessage(child,
+                    WM_SETFONT,
+                    (WPARAM)g_hFont,
+                    TRUE);
+
+        child = GetWindow(child,
+                          GW_HWNDNEXT);
+    }
+}
+    OUT_DEFAULT_PRECIS,
+    CLIP_DEFAULT_PRECIS,
+    CLEARTYPE_QUALITY,
+    DEFAULT_PITCH | FF_DONTCARE,
+    "Segoe UI");
+        SendMessage(g_hClock, WM_SETFONT, (WPARAM)g_hFont, TRUE);
 
         g_hTopmostChk = CreateWindow("BUTTON", "Selalu di atas", WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
             290, 20, 150, 22, hwnd, (HMENU)500, NULL, NULL);
@@ -497,6 +528,7 @@ LRESULT CALLBACK MainProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
     }
     case WM_TRAYICON:
         if (lp == WM_LBUTTONDBLCLK || lp == WM_LBUTTONUP) {
+            ApplyModernFont(hwnd);
             ShowWindow(hwnd, SW_SHOW);
             SetForegroundWindow(hwnd);
         } else if (lp == WM_RBUTTONUP) {
